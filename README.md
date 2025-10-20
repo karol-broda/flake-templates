@@ -2,10 +2,6 @@
 
 collection of nix flake templates for various development environments.
 
-## available templates
-
-- `bun` - development shell with bun runtime
-
 ## usage
 
 initialize a new project with a template:
@@ -17,6 +13,7 @@ nix flake init -t github:karol-broda/flake-templates#bun
 ## adding new templates
 
 1. create a new directory under `templates/`:
+
    ```sh
    mkdir templates/your-template
    ```
@@ -44,4 +41,3 @@ this repository uses direnv. allow it with:
 ```sh
 direnv allow
 ```
-

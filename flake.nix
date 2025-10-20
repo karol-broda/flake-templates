@@ -12,6 +12,10 @@
           path = ./templates/uv;
           description = "development shell for python with uv";
         };
+        zig = {
+          path = ./templates/zig;
+          description = "development shell for zig";
+        };
       };
 
       defaultTemplate = self.templates.bun;

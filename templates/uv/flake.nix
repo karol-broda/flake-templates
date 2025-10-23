@@ -13,14 +13,21 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           lib = nixpkgs.lib;
+          py = pkgs.python314FreeThreading;
         in
         pkgs.mkShell {
           packages = with pkgs; [
             uv
+            py
           ];
           shellHook = ''
             unset UV_PYTHON
             unset UV_NO_MANAGED_PYTHON
+            export UV_NO_MANAGED_PYTHON=1
+            export UV_PYTHON=${lib.getExe py}
+
+            export UV_PYTHON_DOWNLOADS=never
+
             if [ -n "$PS1" ]; then
               echo "uv: $(${lib.getExe pkgs.uv} --version | head -n1)"
               # show which python uv will use
@@ -41,3 +48,4 @@
       devShells.aarch64-darwin.default = mkShellFor "aarch64-darwin";
     };
 }
+

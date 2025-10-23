@@ -16,6 +16,10 @@
           path = ./templates/zig;
           description = "development shell for zig";
         };
+        java = {
+          path = ./templates/java;
+          description = "development shell for java with zulu 24";
+        };
       };
 
       defaultTemplate = self.templates.bun;

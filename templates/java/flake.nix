@@ -23,7 +23,8 @@
 
           shellHook = ''
             if [ -n "$PS1" ]; then
-              echo "zig: $(zig --version)"
+              echo "java: $(java --version)"
+              echo "javac: $(javac --version)"
             fi
           '';
         };

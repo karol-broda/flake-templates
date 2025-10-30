@@ -20,6 +20,10 @@
           path = ./templates/java;
           description = "development shell for java with zulu 24";
         };
+        terraform = {
+          path = ./templates/terraform;
+          description = "development shell for general terraform development";
+        };
       };
 
       defaultTemplate = self.templates.bun;

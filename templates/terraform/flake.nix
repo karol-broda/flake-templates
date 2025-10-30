@@ -2,16 +2,27 @@
   description = "terraform devshell flake";
 
   inputs = {
-    nixpkgs = {
-      url = "github:NixOS/nixpkgs/nixos-25.05";
-    };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
   };
 
   outputs = { self, nixpkgs }:
     let
+      lib = nixpkgs.lib;
+
+      mkPkgs = system:
+        import nixpkgs {
+          inherit system;
+          config = {
+            allowUnfree = false;
+            allowUnfreePredicate = pkg:
+              let name = lib.getName pkg;
+              in name == "terraform";
+          };
+        };
+
       mkShellFor = system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = mkPkgs system;
         in
         pkgs.mkShell {
           packages = with pkgs; [

@@ -25,7 +25,7 @@
           description = "development shell for general terraform development";
         };
         go = {
-          path = ./templates/terraform;
+          path = ./templates/go;
           description = "development shell for go 1.25";
         };
       };

@@ -24,6 +24,10 @@
           path = ./templates/terraform;
           description = "development shell for general terraform development";
         };
+        go = {
+          path = ./templates/terraform;
+          description = "development shell for go 1.25";
+        };
       };
 
       defaultTemplate = self.templates.bun;

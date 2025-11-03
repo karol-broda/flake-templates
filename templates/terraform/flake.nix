@@ -27,6 +27,11 @@
         pkgs.mkShell {
           packages = with pkgs; [
             terraform
+            (writeShellScriptBin "tf" ''
+              #!/usr/bin/env bash
+              set -euo pipefail
+              exec "${lib.getExe pkgs.terraform}" "$@"
+            '')
           ];
 
           shellHook = ''

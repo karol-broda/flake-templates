@@ -28,9 +28,12 @@
           path = ./templates/go;
           description = "development shell for go 1.25";
         };
+        rust = {
+          path = ./templates/rust;
+          description = "development shell for rust with rust-overlay, multiple toolchains, and wasm support";
+        };
       };
 
       defaultTemplate = self.templates.bun;
     };
 }
-

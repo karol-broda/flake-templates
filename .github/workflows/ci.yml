@@ -10,44 +10,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  format:
-    name: check formatting
+  checks:
+    name: lint and discover
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/nix-installer-action@v21
-
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
-        with:
-          use-flakehub: false
-          diff-store: true
-
-      - name: check nix formatting with alejandra
-        run: nix fmt -- --check .
-
-  flake-check:
-    name: flake check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/nix-installer-action@v21
-
-      - uses: DeterminateSystems/magic-nix-cache-action@v13
-        with:
-          use-flakehub: false
-          diff-store: true
-
-      - uses: DeterminateSystems/flake-checker-action@v12
-
-      - name: nix flake check (root)
-        run: nix flake check
-
-  discover:
-    name: discover templates
-    runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
     steps:
@@ -60,23 +30,44 @@ jobs:
           use-flakehub: false
           diff-store: true
 
+      - name: check nix formatting
+        run: nix fmt -- --check .
+
+      - uses: DeterminateSystems/flake-checker-action@v12
+
+      - name: nix flake check
+        run: nix flake check
+
       - id: gen
+        name: discover template matrix
         run: |
+          list_templates() {
+            nix eval .#templates --apply 'tpls:
+              builtins.filter (n: n != "default") (builtins.attrNames tpls)
+            ' --json
+          }
+
+          list_shells() {
+            nix eval "./templates/$1#devShells.x86_64-linux" --apply builtins.attrNames --json
+          }
+
           matrix="[]"
-          for tpl in $(nix flake show --json . | jq -r '.templates | keys[] | select(. != "default")'); do
-            matrix=$(nix flake show --json "./templates/$tpl" | jq -c --arg t "$tpl" --argjson m "$matrix" \
-              '$m + [.devShells."x86_64-linux" | keys[] | {"template": $t, "shell": .}]')
+          for tpl in $(list_templates | jq -r '.[]'); do
+            matrix=$(list_shells "$tpl" | jq -c --arg t "$tpl" --argjson m "$matrix" \
+              '$m + [.[] | {template: $t, shell: .}]')
           done
+
           echo "matrix={\"include\":$matrix}" >> "$GITHUB_OUTPUT"
 
   templates:
     name: "${{ matrix.template }} (${{ matrix.shell }})"
     runs-on: ubuntu-latest
-    needs: [format, flake-check, discover]
+    timeout-minutes: 20
+    needs: [checks]
     strategy:
       fail-fast: false
       max-parallel: 3
-      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 

@@ -1,5 +1,4 @@
-{ pkgs }:
-
+{pkgs}:
 with pkgs; [
   cargo-watch
   cargo-edit

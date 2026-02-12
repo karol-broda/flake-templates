@@ -1,0 +1,81 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v21
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: check nix formatting with alejandra
+        run: nix run nixpkgs#alejandra -- --check .
+
+  flake-check:
+    name: flake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v21
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - uses: DeterminateSystems/flake-checker-action@v12
+
+      - name: nix flake check (root)
+        run: nix flake check
+
+  templates:
+    name: "${{ matrix.template }} (${{ matrix.shell }})"
+    runs-on: ubuntu-latest
+    needs: [format, flake-check]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - template: bun
+            shell: default
+          - template: uv
+            shell: default
+          - template: zig
+            shell: default
+          - template: java
+            shell: default
+          - template: terraform
+            shell: default
+          - template: go
+            shell: default
+          - template: rust
+            shell: default
+          - template: rust
+            shell: nightly
+          - template: rust
+            shell: wasm
+          - template: c
+            shell: default
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v21
+        with:
+          extra-conf: |
+            accept-flake-config = true
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: evaluate devshell
+        run: nix develop ./templates/${{ matrix.template }}#${{ matrix.shell }} --command true

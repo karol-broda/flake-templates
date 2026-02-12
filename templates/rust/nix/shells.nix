@@ -1,35 +1,39 @@
-{ pkgs, toolchains, buildInputs, devTools }:
-
-let
+{
+  pkgs,
+  toolchains,
+  buildInputs,
+  devTools,
+}: let
   mkRustShell = {
     toolchain,
     includeDevTools ? true,
     extraPackages ? [],
     extraBuildInputs ? [],
     extraEnv ? {},
-    shellHookExtra ? ""
+    shellHookExtra ? "",
   }:
     pkgs.mkShell ({
-      packages = [ toolchain ]
-        ++ buildInputs.nativeBuildInputs
-        ++ pkgs.lib.optionals includeDevTools devTools
-        ++ extraPackages;
+        packages =
+          [toolchain]
+          ++ buildInputs.nativeBuildInputs
+          ++ pkgs.lib.optionals includeDevTools devTools
+          ++ extraPackages;
 
-      buildInputs = buildInputs.buildInputs ++ extraBuildInputs;
+        buildInputs = buildInputs.buildInputs ++ extraBuildInputs;
 
-      RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
+        RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
 
-      shellHook = ''
-        if [ -n "$PS1" ]; then
-          echo "rust dev shell"
-          echo "  rustc: $(rustc --version)"
-          echo "  cargo: $(cargo --version)"
-        fi
-        ${shellHookExtra}
-      '';
-    } // buildInputs.env // extraEnv);
-in
-{
+        shellHook = ''
+          if [ -n "$PS1" ]; then
+            echo "rust dev shell"
+            echo "  rustc: $(rustc --version)"
+            echo "  cargo: $(cargo --version)"
+          fi
+          ${shellHookExtra}
+        '';
+      }
+      // buildInputs.env // extraEnv);
+in {
   default = mkRustShell {
     toolchain = toolchains.default;
   };

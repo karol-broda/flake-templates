@@ -1,6 +1,4 @@
-{ pkgs }:
-
-{
+{pkgs}: {
   default = pkgs.rust-bin.stable.latest.default.override {
     extensions = [
       "rust-src"
@@ -38,13 +36,13 @@
     channel ? "stable",
     version ? "latest",
     extensions ? [],
-    targets ? []
-  }:
-    let
-      base = if version == "latest"
-        then pkgs.rust-bin.${channel}.latest.default
-        else pkgs.rust-bin.${channel}.${version}.default;
-    in
+    targets ? [],
+  }: let
+    base =
+      if version == "latest"
+      then pkgs.rust-bin.${channel}.latest.default
+      else pkgs.rust-bin.${channel}.${version}.default;
+  in
     base.override {
       inherit extensions targets;
     };

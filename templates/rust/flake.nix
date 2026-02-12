@@ -18,35 +18,34 @@
     self,
     nixpkgs,
     rust-overlay,
-    systems
-  }:
-    let
-      supportedSystems = import systems;
-      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
+    systems,
+  }: let
+    supportedSystems = import systems;
+    forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
 
-      mkPkgs = system: import nixpkgs {
+    mkPkgs = system:
+      import nixpkgs {
         inherit system;
         overlays = [
           rust-overlay.overlays.default
         ];
       };
 
-      mkModules = system: import ./nix {
+    mkModules = system:
+      import ./nix {
         pkgs = mkPkgs system;
       };
-    in
-    {
-      devShells = forAllSystems (system:
-        let
-          modules = mkModules system;
-        in
-        {
-          inherit (modules.shells) default nightly wasm;
-        }
-      );
+  in {
+    devShells = forAllSystems (
+      system: let
+        modules = mkModules system;
+      in {
+        inherit (modules.shells) default nightly wasm;
+      }
+    );
 
-      overlays = {
-        default = rust-overlay.overlays.default;
-      };
+    overlays = {
+      default = rust-overlay.overlays.default;
     };
+  };
 }

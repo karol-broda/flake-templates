@@ -20,6 +20,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v21
 
       - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: false
 
       - name: check nix formatting with alejandra
         run: nix run nixpkgs#alejandra -- --check .
@@ -33,6 +35,8 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v21
 
       - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: false
 
       - uses: DeterminateSystems/flake-checker-action@v12
 
@@ -76,6 +80,8 @@ jobs:
             accept-flake-config = true
 
       - uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: false
 
       - name: evaluate devshell
         run: nix develop ./templates/${{ matrix.template }}#${{ matrix.shell }} --command true

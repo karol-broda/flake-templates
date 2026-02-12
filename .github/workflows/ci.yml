@@ -14,12 +14,10 @@ permissions:
   contents: read
 
 jobs:
-  checks:
-    name: lint and discover
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    outputs:
-      matrix: ${{ steps.gen.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,6 +35,17 @@ jobs:
 
       - name: nix flake check
         run: nix flake check
+
+  discover:
+    name: discover templates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v21
 
       - id: gen
         name: discover template matrix
@@ -63,11 +72,11 @@ jobs:
     name: "${{ matrix.template }} (${{ matrix.shell }})"
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [checks]
+    needs: [discover]
     strategy:
       fail-fast: false
       max-parallel: 3
-      matrix: ${{ fromJSON(needs.checks.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 

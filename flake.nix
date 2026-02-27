@@ -47,6 +47,10 @@
         path = ./templates/c;
         description = "development shell for c with clang, make, cmake, and debugging tools";
       };
+      cpp = {
+        path = ./templates/cpp;
+        description = "development shell for c++ with clang, cmake, ninja, vulkan sdk, and debugging tools";
+      };
     };
 
     templates.default = self.templates.bun;

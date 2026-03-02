@@ -1,0 +1,18 @@
+input := "main.typ"
+output := "main.pdf"
+
+# recompile on every save
+dev:
+    typst watch {{ input }} {{ output }}
+
+# compile the document once
+build:
+    typst compile {{ input }} {{ output }}
+
+# format all .typ files
+fmt:
+    typstyle format-all
+
+# open the compiled pdf
+open: build
+    xdg-open {{ output }}

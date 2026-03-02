@@ -51,6 +51,10 @@
         path = ./templates/cpp;
         description = "development shell for c++ with clang, cmake, ninja, vulkan sdk, and debugging tools";
       };
+      typst = {
+        path = ./templates/typst;
+        description = "development shell for typst with tinymist lsp, typstyle formatter, and watchexec";
+      };
     };
 
     templates.default = self.templates.bun;
